@@ -3,9 +3,9 @@
 # To modify the layout, see https://jekyllrb.com/docs/themes/#overriding-theme-defaults
 
 layout: home
-title: home
+title: Home
 ---
 
-# Hello, welcome to my website
+## Hello, welcome to my website
 
 ![piotr](me_epic.jpg)
