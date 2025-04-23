@@ -4,15 +4,10 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+## Hello this is Piotr!
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+I am an AI fullstack python software developer intersted in an internship for Summer 2025 at FAANG.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+My experience is vast in the realm of artificial intelegence. ChatGPT blew my mind from the first time I utilized it to write my essays in high school on my behalf. Since then, I have delved into AI tooling such as Numpy, Pandas, and PyTorch.
 
-
-[jekyll-organization]: https://github.com/jekyll
+Currently, I am a bored member at ACM AI and I love super smash bros. I main Isabelle😎. Check out my Xeets on X.
