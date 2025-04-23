@@ -4,3 +4,7 @@
 
 layout: home
 ---
+
+# Hello, welcome to my website
+
+![piotr](me_epic.jpg)
