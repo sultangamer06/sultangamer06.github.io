@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SWE Internship Application Dashboard - 1000 Apps Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script> <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark Gray-Blue background */
+            color: #d1d5db; /* Light gray text */
+            overflow-x: hidden; /* Prevent horizontal scroll from blobs */
+            position: relative;
+        }
+
+        /* Animated Blurry Blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            width: 60vmax;
+            height: 60vmax;
+            border-radius: 50%;
+            opacity: 0.15;
+            z-index: -1;
+            will-change: transform, opacity;
+        }
+
+        body::before {
+            background: radial-gradient(circle, rgba(13,148,136,0.8) 0%, rgba(59,130,246,0.5) 100%);
+            filter: blur(150px);
+            animation: blobOneAnimation 25s infinite alternate ease-in-out;
+        }
+
+        body::after {
+            background: radial-gradient(circle, rgba(168,85,247,0.7) 0%, rgba(236,72,153,0.5) 100%);
+            filter: blur(180px);
+            animation: blobTwoAnimation 30s infinite alternate ease-in-out;
+            animation-delay: -10s;
+        }
+
+        @keyframes blobOneAnimation {
+            0% { transform: translate(-60%, -60%) scale(1); }
+            50% { transform: translate(-40%, -40%) scale(1.2); }
+            100% { transform: translate(-60%, -60%) scale(1); }
+        }
+
+        @keyframes blobTwoAnimation {
+            0% { transform: translate(-40%, -40%) scale(1); }
+            50% { transform: translate(-60%, -60%) scale(1.3); }
+            100% { transform: translate(-40%, -40%) scale(1); }
+        }
+
+        .chart-wrapper { /* Added wrapper for better control */
+            background-color: #1f2937;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            position: relative; /* Important for Chart.js responsiveness */
+        }
+        .chart-container { /* This will hold the canvas */
+            height: 350px; /* Default height, can be overridden */
+            position: relative;
+        }
+        .subject-line-chart-container {
+             height: 400px; /* More height for horizontal bar with many labels */
+        }
+
+
+        .stat-card {
+            background-color: #1f2937;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-card h3 {
+            font-size: 1.125rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card p {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+        .stat-card .subtext {
+            font-size: 1rem;
+            font-weight: 400;
+            color: #9ca3af;
+        }
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #e5e7eb;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="mb-8 text-center">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-purple-500 py-2">
+            SWE Internship Application Simulation
+        </h1>
+        <p class="text-xl text-gray-400">Insights from the #1000AppsChallenge</p>
+    </header>
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="stat-card">
+            <h3>Total Applications</h3>
+            <p>1,000</p>
+        </div>
+        <div class="stat-card">
+            <h3>Resume Opens</h3>
+            <p>37% <span class="subtext">(370)</span></p>
+        </div>
+        <div class="stat-card">
+            <h3>Avg. Response Rate</h3>
+            <p>12% <span class="subtext">(120)</span></p>
+        </div>
+        <div class="stat-card">
+            <h3>Offers Received</h3>
+            <p>3 <span class="subtext">(0.3%)</span></p>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="chart-wrapper">
+            <h2 class="chart-title">Application Funnel</h2>
+            <div class="chart-container">
+                <canvas id="applicationFunnelChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h2 class="chart-title">Impact of Send Time on Open Rates (PST)</h2>
+            <div class="chart-container">
+                <canvas id="timingImpactChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h2 class="chart-title">Subject Line Performance (Response Rate)</h2>
+            <div class="chart-container subject-line-chart-container">
+                <canvas id="subjectLineChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h2 class="chart-title">Portfolio Impact on Callback Rate</h2>
+            <div class="chart-container">
+                <canvas id="portfolioImpactChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-wrapper">
+            <h2 class="chart-title">Personalized P.S. Line: Reply Rate Boost</h2>
+            <div class="chart-container">
+                <canvas id="psLineImpactChart"></canvas>
+            </div>
+        </div>
+
+         <div class="chart-wrapper">
+            <h2 class="chart-title">A/B Test: GitHub Link Placement (CTR to Repo)</h2>
+            <div class="chart-container">
+                <canvas id="abTestGithubChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-12 text-center text-gray-500">
+        <p>Data-driven insights for your internship hunt. Generated from the 1000 Applications Challenge.</p>
+        <p>&copy; 2025 Data Insights Co.</p>
+    </footer>
+
+    <script>
+        // Register the datalabels plugin globally
+        Chart.register(ChartDataLabels);
+
+        // Default Chart.js options for dark theme and datalabels
+        const getDefaultChartOptions = (isLogarithmic = false, isHorizontal = false) => {
+            const axisKey = isHorizontal ? 'x' : 'y';
+            const categoryAxisKey = isHorizontal ? 'y' : 'x';
+
+            let scalesConfig = {
+                [axisKey]: { // Value axis
+                    beginAtZero: !isLogarithmic,
+                    type: isLogarithmic ? 'logarithmic' : 'linear',
+                    ticks: { color: '#9ca3af', font: { size: 10 } },
+                    grid: { color: '#374151' }
+                },
+                [categoryAxisKey]: { // Category axis
+                    ticks: { color: '#9ca3af', font: { size: 10 }, autoSkip: false },
+                    grid: { display: false }
+                }
+            };
+             if (isLogarithmic) {
+                scalesConfig[axisKey].min = 0.1; 
+                scalesConfig[axisKey].afterBuildTicks = chart => {
+                    chart.ticks = []; // Clear existing ticks
+                    // Define custom ticks for the logarithmic scale
+                    const customLogTicks = [0.1, 1, 10, 100, 1000]; 
+                    customLogTicks.forEach(tickValue => {
+                         // Check if tickValue is within chart's data range to avoid errors if max is less than 1000
+                        if (chart.max === undefined || tickValue <= chart.max * 1.1) { // Add a small buffer for chart.max
+                            chart.ticks.push({value: tickValue, label: tickValue.toString()});
+                        }
+                    });
+                     // Ensure the max data value is also a tick if not covered
+                    if (chart.max && !customLogTicks.includes(chart.max)) {
+                        // This part might need more complex logic if chart.max is not a power of 10
+                        // For simplicity, we rely on the predefined ticks and chart.js auto-ticks for other values.
+                    }
+                };
+            }
+
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: isHorizontal ? 'y' : 'x',
+                scales: scalesConfig,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { color: '#d1d5db', font: { size: 12 } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleColor: '#e5e7eb',
+                        bodyColor: '#e5e7eb',
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                let value = isHorizontal ? context.parsed.x : context.parsed.y;
+                                if (value !== null) {
+                                    label += parseFloat(value.toFixed(2)); // Format to 2 decimal places if needed
+                                    // Use canvas.id for checking chart type
+                                    if (!isLogarithmic && (context.chart.canvas.id.includes('Rate') || context.chart.canvas.id.includes('Impact') || context.chart.canvas.id.includes('Boost') || context.chart.canvas.id === 'abTestGithubChart')) {
+                                        label += '%';
+                                    }
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    datalabels: {
+                        color: '#e5e7eb',
+                        anchor: 'end',
+                        align: 'end',
+                        offset: 4,
+                        font: { weight: 'bold', size: 10 },
+                        formatter: (rawValue, context) => {
+                            // Get the actual data value from the dataset for the current item
+                            let dataValue = context.dataset.data[context.dataIndex];
+
+                            // If data is structured as {x: val} or {y: val} (e.g., for scatter/bubble, not typical for bar)
+                            // This might not be strictly necessary for current bar charts but adds robustness
+                            if (typeof dataValue === 'object' && dataValue !== null) {
+                                dataValue = isHorizontal ? dataValue.x : dataValue.y;
+                            }
+                            
+                            // Ensure dataValue is a number before toFixed
+                            dataValue = parseFloat(dataValue);
+                            if (isNaN(dataValue)) return ''; // Return empty if not a number
+
+                            // Format for logarithmic/funnel charts (raw numbers)
+                            if (isLogarithmic || context.chart.canvas.id === 'applicationFunnelChart') {
+                                return dataValue.toFixed(dataValue % 1 === 0 ? 0 : 2); // No decimals if whole number
+                            }
+                            // Format for percentage-based charts
+                            if (context.chart.canvas.id.includes('Rate') || context.chart.canvas.id.includes('Impact') || context.chart.canvas.id.includes('Boost') || context.chart.canvas.id === 'abTestGithubChart') {
+                                return dataValue.toFixed(2) + '%'; // Show 2 decimal places for percentages like 10.43%
+                            }
+                            return dataValue.toFixed(dataValue % 1 === 0 ? 0 : 2);
+                        }
+                    }
+                }
+            };
+        };
+
+        const doughnutOptionsDark = {
+             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#d1d5db', font: { size: 10 } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleColor: '#e5e7eb',
+                    bodyColor: '#e5e7eb',
+                     callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) { label += ': '; }
+                            if (context.parsed !== null) { label += context.parsed + '%'; }
+                            return label;
+                        }
+                    }
+                },
+                 datalabels: {
+                    color: '#111827', // Dark text for light doughnut slices
+                    formatter: (value) => value + '%',
+                    font: { weight: 'bold', size: 11 }
+                }
+            }
+        };
+
+        // Chart Instantiation
+        // 1. Application Funnel Chart (Logarithmic, Horizontal)
+        const applicationFunnelCtx = document.getElementById('applicationFunnelChart').getContext('2d');
+        const funnelChartOptions = getDefaultChartOptions(true, true); // Logarithmic, Horizontal
+        // Add specific layout padding for the funnel chart
+        funnelChartOptions.layout = { padding: { right: 25 } }; 
+        new Chart(applicationFunnelCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Applications Sent', 'Resumes Opened', 'Responses Received', 'Interviews/Next Steps', 'Offers'],
+                datasets: [{
+                    label: 'Count',
+                    data: [1000, 370, 120, 60, 3],
+                    backgroundColor: ['rgba(59, 130, 246, 0.7)','rgba(16, 185, 129, 0.7)','rgba(245, 158, 11, 0.7)','rgba(239, 68, 68, 0.7)','rgba(139, 92, 246, 0.7)'],
+                    borderColor: ['rgba(59, 130, 246, 1)','rgba(16, 185, 129, 1)','rgba(245, 158, 11, 1)','rgba(239, 68, 68, 1)','rgba(139, 92, 246, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: funnelChartOptions
+        });
+
+        // 2. Timing Impact Chart (Vertical)
+        const timingImpactCtx = document.getElementById('timingImpactChart').getContext('2d');
+        new Chart(timingImpactCtx, {
+            type: 'bar',
+            data: {
+                labels: ['9-11 AM', '11 AM-1 PM', '1-3 PM', '3-5 PM', '5-7 PM', '7-9 PM', 'After 9 PM'],
+                datasets: [{
+                    label: 'Resume Open Rate', 
+                    data: [15, 18, 20, 25, 37, 30, 10],
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: getDefaultChartOptions(false, false) 
+        });
+
+        // 3. Subject Line Chart (Horizontal)
+        const subjectLineCtx = document.getElementById('subjectLineChart').getContext('2d');
+        new Chart(subjectLineCtx, {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Quick question about SWE intern role',
+                    'Referral: SWE Intern Opportunity',
+                    'Following Up: SWE Internship',
+                    'Application for SWE Internship at [Corp]',
+                    'Aspiring SWE Intern Seeking Role'
+                ],
+                datasets: [{
+                    label: 'Response Rate',
+                    data: [12, 15, 6, 4, 3],
+                    backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: getDefaultChartOptions(false, true)
+        });
+
+        // 4. Portfolio Impact Chart (Vertical)
+        const portfolioImpactCtx = document.getElementById('portfolioImpactChart').getContext('2d');
+        new Chart(portfolioImpactCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Live Demo Linked', 'GitHub (No Live Demo)', 'Generic Resume/No Link'],
+                datasets: [{
+                    label: 'Callback Rate',
+                    data: [8, 4, 2],
+                    backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                    borderColor: 'rgba(139, 92, 246, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: getDefaultChartOptions(false, false)
+        });
+
+        // 5. Personalized P.S. Line Impact Chart (Vertical)
+        const psLineImpactCtx = document.getElementById('psLineImpactChart').getContext('2d');
+        new Chart(psLineImpactCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Without Personalized P.S.', 'With Personalized P.S.'],
+                datasets: [{
+                    label: 'Reply Rate Boost',
+                    data: [10.43, 12], // Example: 12 is a 15% boost over 10.43
+                    backgroundColor: ['rgba(239, 68, 68, 0.7)', 'rgba(59, 130, 246, 0.7)'],
+                    borderColor: ['rgba(239, 68, 68, 1)', 'rgba(59, 130, 246, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: getDefaultChartOptions(false, false)
+        });
+
+        // 6. A/B Test: GitHub Link Placement (Doughnut)
+        const abTestGithubCtx = document.getElementById('abTestGithubChart').getContext('2d');
+        new Chart(abTestGithubCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['GitHub in Signature', 'GitHub in Body Text', 'No Explicit Link'],
+                datasets: [{
+                    label: 'CTR to GitHub Repo',
+                    data: [5, 8, 2],
+                    backgroundColor: ['rgba(245, 158, 11, 0.8)','rgba(16, 185, 129, 0.8)','rgba(75, 85, 99, 0.8)'],
+                    borderColor: ['#1f2937','#1f2937','#1f2937'], // Match chart container background
+                    borderWidth: 2
+                }]
+            },
+            options: doughnutOptionsDark
+        });
+
+    </script>
+</body>
+</html>
